@@ -1,74 +1,118 @@
 /*
 Name:Antonio Butts Jr.
-Assignment:HW7
+Assignment:Final Project
 Section:006
-AI-Usage:Used AI to help with structure 
+AI-Usage:Minimal
 */
 
 #include <iostream>
-#include <vector>
-#include <string>
 using namespace std;
 
-// Define Book struct
-struct Book {
-    string title;
-    string author;
-    int year;
-    int pages;
+// Game object
+struct Player {
+    int x;
+    int y;
+    bool hasWon;
+    int moves;
 };
 
-int main() {
-    vector<Book> books;
+// Draw the grid
+void drawGrid(Player p, int tx, int ty) {
+    cout << "\n=== TREASURE GRID ===\n";
 
-    // Input 5 books
     for (int i = 0; i < 5; i++) {
-        Book b;
+        for (int j = 0; j < 5; j++) {
 
-        cout << "Enter title: ";
-        getline(cin, b.title);
-
-        cout << "Enter author: ";
-        getline(cin, b.author);
-
-        cout << "Enter year published: ";
-        cin >> b.year;
-
-        cout << "Enter number of pages: ";
-        cin >> b.pages;
-        cin.ignore(); // clear newline
-
-        books.push_back(b);
+            if (i == p.y && j == p.x) {
+                cout << "P ";
+            }
+            else if (i == ty && j == tx) {
+                cout << "T ";
+            }
+            else {
+                cout << ". ";
+            }
+        }
+        cout << endl;
     }
 
-    // Initialize tracking variables
-    int earliestYear = books[0].year;
-    int mostPages = books[0].pages;
-    int totalPages = 0;
+    cout << "Moves: " << p.moves << endl;
+}
 
-    // Output all books and compute stats
-    cout << "\nBook List:\n";
-    for (const Book& b : books) {
-        cout << b.title << ", " << b.author << ", "
-             << b.year << ", " << b.pages << endl;
+// Move player
+void movePlayer(Player &p, char input) {
+    if (input == 'w' && p.y > 0) {
+        p.y--;
+        p.moves++;
+    }
+    else if (input == 's' && p.y < 4) {
+        p.y++;
+        p.moves++;
+    }
+    else if (input == 'a' && p.x > 0) {
+        p.x--;
+        p.moves++;
+    }
+    else if (input == 'd' && p.x < 4) {
+        p.x++;
+        p.moves++;
+    }
+}
 
-        if (b.year < earliestYear) {
-            earliestYear = b.year;
+int main() {
+    Player player;
+    player.x = 0;
+    player.y = 0;
+    player.hasWon = false;
+    player.moves = 0;
+
+    int treasureX = 4;
+    int treasureY = 4;
+
+    cout << "=== FIND THE TREASURE! ===\n";
+    cout << "HOW TO PLAY:\n";
+    cout << "- You are P on the grid\n";
+    cout << "- T is the treasure\n";
+    cout << "- Move using W (up), A (left), S (down), D (right)\n";
+    cout << "- Reach the treasure in the FEWEST moves possible\n";
+    cout << "- Press Q to quit\n\n";
+
+    char input;
+
+    while (!player.hasWon) {
+
+        drawGrid(player, treasureX, treasureY);
+
+        cout << "\nMove (W/A/S/D) or Q to quit: ";
+        cin >> input;
+
+        if (input == 'q' || input == 'Q') {
+            cout << "You quit the game.\n";
+            break;
         }
 
-        if (b.pages > mostPages) {
-            mostPages = b.pages;
-        }
+        movePlayer(player, input);
 
-        totalPages += b.pages;
+        // WIN CONDITION
+        if (player.x == treasureX && player.y == treasureY) {
+            player.hasWon = true;
+
+            cout << "\n YOU WIN! You found the treasure!\n";
+            cout << "Total moves: " << player.moves << endl;
+
+            // Performance grading message (simple but effective)
+            if (player.moves <= 8) {
+                cout << "Excellent! You found it in a low number of moves!\n";
+            }
+            else {
+                cout << "Try again to reach it in fewer moves!\n";
+            }
+        }
     }
 
-    double avgPages = (double)totalPages / books.size();
-
-    // Output required stats
-    cout << "\nmost pages: " << mostPages << endl;
-    cout << "earliest published book: " << earliestYear << endl;
-    cout << "average number of pages: " << avgPages << endl;
+    if (!player.hasWon) {
+        cout << "Game Over.\n";
+    }
 
     return 0;
 }
